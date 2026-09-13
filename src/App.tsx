@@ -99,13 +99,18 @@ function AppContent() {
   const currentUrgency: UrgencyLevel | null = currentTriage?.urgency || (isEmergencyActive ? 'CRITICAL' : null);
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900 flex flex-col font-sans selection:bg-rose-500 selection:text-white antialiased">
+    <div className="min-h-screen bg-slate-50/90 dark:bg-[#080c14] text-slate-900 dark:text-slate-100 flex flex-col font-sans selection:bg-rose-500 selection:text-white antialiased relative">
+      {/* Subtle telemetry radial accent at the top */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-radial from-rose-500/5 via-indigo-500/3 to-transparent pointer-events-none -z-10 blur-3xl" />
+
       {/* Disclaimer Banner */}
-      <div className="bg-slate-900 text-slate-300 text-[11px] py-1.5 px-4 text-center border-b border-slate-800 flex items-center justify-center gap-2">
-        <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-        <span>
-          <strong>Emergency System Notice:</strong> MediResQ is a clinical triage copilot for rapid response. If you or someone nearby is in immediate life-threatening danger, call <strong>108 / 112</strong> (National Ambulance & Emergency Helpline, India) immediately.
-        </span>
+      <div className="bg-slate-950 text-slate-300 text-[11px] py-2 px-4 text-center border-b border-slate-800/80 flex items-center justify-center gap-2 shadow-inner">
+        <div className="flex items-center gap-2 max-w-5xl mx-auto">
+          <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+          <span className="leading-tight">
+            <strong className="text-amber-300 font-semibold">India Emergency Dispatch:</strong> For immediate acute distress or life-threatening trauma, dial <strong className="text-rose-400 font-bold underline">108 (National Ambulance)</strong> or <strong className="text-sky-300 font-bold underline">112 (ERSS Helpline)</strong>. MediResQ is a clinical decision-support copilot.
+          </span>
+        </div>
       </div>
 
       {/* Main Header */}
@@ -120,24 +125,24 @@ function AppContent() {
 
       {/* Active Urgent Notification Ribbon (when in Emergency Mode) */}
       {isEmergencyActive && activeTab !== 'dashboard' && (
-        <div className="bg-rose-600 text-white px-4 py-2.5 shadow-md flex items-center justify-between text-xs font-bold animate-in slide-in-from-top duration-200">
-          <div className="flex items-center gap-2 max-w-2xl mx-auto w-full justify-between">
-            <div className="flex items-center gap-2">
+        <div className="bg-gradient-to-r from-rose-600 via-red-600 to-rose-700 text-white px-4 py-2.5 shadow-md flex items-center justify-between text-xs font-bold animate-in slide-in-from-top duration-200">
+          <div className="flex items-center gap-2 max-w-4xl mx-auto w-full justify-between">
+            <div className="flex items-center gap-2.5">
               <span className="w-2.5 h-2.5 rounded-full bg-white animate-ping" />
-              <span>EMERGENCY ASSISTANCE SESSION ACTIVE ({currentUrgency})</span>
+              <span>EMERGENCY DISPATCH ACTIVE • STATUS: {currentUrgency}</span>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => setActiveTab('dashboard')}
-                className="underline hover:text-rose-100 cursor-pointer"
+                className="px-3 py-1 bg-black/20 hover:bg-black/30 rounded-lg text-white font-bold cursor-pointer transition-colors"
               >
-                View Dashboard →
+                View Live Dashboard →
               </button>
               <a
                 href="tel:108"
-                className="px-3 py-1 bg-white text-rose-700 rounded-lg shadow-xs hover:bg-rose-50 font-bold"
+                className="px-3 py-1 bg-white text-rose-700 rounded-lg shadow-xs hover:bg-rose-50 font-black cursor-pointer"
               >
-                Call 108
+                Dial 108
               </a>
             </div>
           </div>

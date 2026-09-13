@@ -123,38 +123,42 @@ export const GeminiEmergencyAssistant: React.FC<GeminiEmergencyAssistantProps> =
   };
 
   return (
-    <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-5 sm:p-6 shadow-xl border border-indigo-500/30 space-y-4">
+    <div className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white rounded-3xl p-5 sm:p-7 shadow-2xl border border-indigo-500/30 space-y-5">
+      {/* Ambient decorative glow */}
+      <div className="absolute top-0 right-0 w-72 h-72 bg-rose-600/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+      <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none -ml-20 -mb-20" />
+
       {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-indigo-900/60 pb-3">
-        <div className="flex items-center gap-2.5">
-          <div className="p-2 bg-rose-600/30 border border-rose-500/40 rounded-xl text-rose-300">
-            <Sparkles className="w-5 h-5 text-rose-400" />
+      <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-indigo-500/20 pb-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 bg-gradient-to-tr from-rose-600 to-indigo-600 border border-white/20 rounded-2xl text-white shadow-md shadow-rose-500/20">
+            <Sparkles className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-bold text-sm text-white flex items-center gap-1.5">
-                Google Gemini Emergency Copilot
+              <h3 className="font-extrabold text-base text-white tracking-tight">
+                Gemini Emergency Copilot
               </h3>
-              <span className="flex items-center gap-1.5 px-2 py-0.5 text-[9px] font-extrabold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full shadow-xs">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Live AI Active
+                Live Telemetry
               </span>
             </div>
-            <p className="text-[11px] text-slate-400">
-              Live AI medical guidance, instant bystander Q&A, and natural-language symptom parsing.
+            <p className="text-xs text-slate-400 font-medium">
+              Real-time emergency triage assistant & instant bystander clinical guidance
             </p>
           </div>
         </div>
 
         {/* Mode Selector */}
-        <div className="flex items-center gap-1 bg-slate-800/80 p-1 rounded-xl border border-slate-700/60 text-xs">
+        <div className="flex items-center gap-1 bg-slate-800/90 p-1 rounded-2xl border border-slate-700/80 text-xs shadow-inner">
           <button
             type="button"
             onClick={() => setActiveMode('qa')}
-            className={`px-3 py-1 rounded-lg font-semibold transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
               activeMode === 'qa'
-                ? 'bg-rose-600 text-white shadow-xs'
-                : 'text-slate-300 hover:text-white'
+                ? 'bg-rose-600 text-white shadow-sm'
+                : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
             }`}
           >
             Emergency Q&A
@@ -162,26 +166,27 @@ export const GeminiEmergencyAssistant: React.FC<GeminiEmergencyAssistantProps> =
           <button
             type="button"
             onClick={() => setActiveMode('extract')}
-            className={`px-3 py-1 rounded-lg font-semibold transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
               activeMode === 'extract'
-                ? 'bg-rose-600 text-white shadow-xs'
-                : 'text-slate-300 hover:text-white'
+                ? 'bg-rose-600 text-white shadow-sm'
+                : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
             }`}
           >
-            AI Natural Intake
+            Natural Intake AI
           </button>
         </div>
       </div>
 
       {/* MODE 1: EMERGENCY Q&A */}
       {activeMode === 'qa' && (
-        <div className="space-y-3">
-          <div className="text-xs text-slate-300">
-            Ask an urgent question while waiting for paramedics (e.g., patient positioning, what NOT to do):
+        <div className="relative z-10 space-y-3.5">
+          <div className="text-xs text-slate-300 font-medium flex items-center gap-2">
+            <HelpCircle className="w-3.5 h-3.5 text-rose-400" />
+            <span>Select a rapid clinical prompt or type a specific bystander inquiry:</span>
           </div>
 
           {/* Quick prompt pills */}
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-2">
             {quickQuestions.map((q, idx) => (
               <button
                 key={idx}
@@ -190,7 +195,7 @@ export const GeminiEmergencyAssistant: React.FC<GeminiEmergencyAssistantProps> =
                   setQuestion(q);
                   handleAskQuestion(q);
                 }}
-                className="text-[11px] bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700/70 px-2.5 py-1 rounded-lg transition-colors cursor-pointer text-left"
+                className="text-[11px] font-semibold bg-slate-800/80 hover:bg-slate-700/90 text-slate-200 hover:text-white border border-slate-700/80 hover:border-rose-500/50 px-3 py-1.5 rounded-xl transition-all cursor-pointer text-left shadow-2xs hover:scale-[1.02] active:scale-95"
               >
                 {q}
               </button>
@@ -198,27 +203,29 @@ export const GeminiEmergencyAssistant: React.FC<GeminiEmergencyAssistantProps> =
           </div>
 
           {/* Query input */}
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleAskQuestion()}
-              placeholder="Type urgent emergency question for Gemini..."
-              className="flex-1 bg-slate-800/90 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-rose-500"
-            />
+          <div className="flex gap-2.5">
+            <div className="relative flex-1">
+              <input
+                type="text"
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleAskQuestion()}
+                placeholder="Ask Gemini: e.g. How to position patient who fainted?"
+                className="w-full bg-slate-900/90 border border-slate-700/80 rounded-2xl px-4 py-2.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-rose-500/60 focus:border-rose-500 shadow-inner"
+              />
+            </div>
             <button
               type="button"
               onClick={() => handleAskQuestion()}
               disabled={qaLoading || !question.trim()}
-              className="px-4 py-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+              className="px-5 py-2.5 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 disabled:opacity-50 text-white rounded-2xl text-xs font-black tracking-wide flex items-center gap-2 transition-all cursor-pointer shadow-md shadow-rose-600/30 active:scale-95 shrink-0"
             >
               {qaLoading ? (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
                 <Send className="w-3.5 h-3.5" />
               )}
-              <span>Ask AI</span>
+              <span>Ask Copilot</span>
             </button>
           </div>
 
@@ -231,51 +238,64 @@ export const GeminiEmergencyAssistant: React.FC<GeminiEmergencyAssistantProps> =
 
           {/* Q&A Result */}
           {qaResponse && (
-            <div className="p-4 bg-slate-800/90 rounded-2xl border border-indigo-500/30 space-y-3 animate-in fade-in">
-              <div className="flex items-start gap-2">
-                <Bot className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                <div className="text-xs font-bold text-white leading-relaxed">
-                  {qaResponse.directAnswer}
+            <div className="p-5 bg-slate-900/90 rounded-2xl border border-indigo-500/40 space-y-4 shadow-xl animate-in fade-in">
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-rose-500/20 rounded-xl text-rose-400 border border-rose-500/30 shrink-0">
+                  <Bot className="w-5 h-5" />
+                </div>
+                <div className="space-y-1">
+                  <div className="text-[10px] font-black uppercase tracking-wider text-rose-400">Direct Clinical Answer</div>
+                  <div className="text-sm font-bold text-white leading-relaxed">
+                    {qaResponse.directAnswer}
+                  </div>
                 </div>
               </div>
 
               {qaResponse.actionSteps && qaResponse.actionSteps.length > 0 && (
-                <div className="space-y-1 pl-6">
-                  <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                    Recommended Actions:
+                <div className="space-y-2 bg-slate-950/60 p-4 rounded-xl border border-slate-800">
+                  <div className="text-[11px] font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Recommended Immediate Actions</span>
                   </div>
-                  <ul className="list-decimal text-xs text-slate-200 space-y-1">
+                  <ul className="space-y-2">
                     {qaResponse.actionSteps.map((step: string, sIdx: number) => (
-                      <li key={sIdx}>{step}</li>
+                      <li key={sIdx} className="text-xs text-slate-200 flex items-start gap-2.5">
+                        <span className="w-5 h-5 rounded-full bg-rose-600/30 text-rose-300 border border-rose-500/40 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">
+                          {sIdx + 1}
+                        </span>
+                        <span className="leading-snug">{step}</span>
+                      </li>
                     ))}
                   </ul>
                 </div>
               )}
 
               {qaResponse.criticalWarning && (
-                <div className="p-2.5 bg-rose-900/40 border border-rose-700/60 rounded-xl text-xs text-rose-200 flex items-start gap-2">
+                <div className="p-3.5 bg-rose-950/70 border border-rose-700/80 rounded-xl text-xs text-rose-100 flex items-start gap-2.5 shadow-sm">
                   <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                  <span>
-                    <strong>DO NOT:</strong> {qaResponse.criticalWarning}
-                  </span>
+                  <div>
+                    <strong className="text-rose-300 uppercase tracking-wider text-[11px] block">Critical Prohibition:</strong>
+                    <span>{qaResponse.criticalWarning}</span>
+                  </div>
                 </div>
               )}
 
               {qaResponse.emergencyEscalation && (
-                <div className="p-2.5 bg-amber-950/40 border border-amber-700/60 rounded-xl text-xs text-amber-200 flex items-start gap-2">
+                <div className="p-3 bg-amber-950/60 border border-amber-600/60 rounded-xl text-xs text-amber-100 flex items-start gap-2.5">
                   <Zap className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                  <span>
-                    <strong>When to Escalate:</strong> {qaResponse.emergencyEscalation}
-                  </span>
+                  <div>
+                    <strong className="text-amber-300 uppercase tracking-wider text-[10px] block">When to Escalate immediately:</strong>
+                    <span>{qaResponse.emergencyEscalation}</span>
+                  </div>
                 </div>
               )}
 
-              <div className="flex items-center justify-between text-[10px] text-slate-400 pt-2 border-t border-slate-700/50">
+              <div className="flex items-center justify-between text-[11px] text-slate-400 pt-3 border-t border-slate-800/80">
                 <span className="flex items-center gap-1.5">
-                  <Bot className="w-3 h-3 text-rose-400" />
+                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
                   <span>{qaResponse.modelUsed ? `Answered by ${qaResponse.modelUsed}` : 'Powered by Google Gemini Flash'}</span>
                 </span>
-                <span className="text-emerald-400 font-semibold">108 / 112 Protocol Aligned</span>
+                <span className="text-emerald-400 font-bold">108 / 112 Protocol Aligned</span>
               </div>
             </div>
           )}
@@ -284,29 +304,29 @@ export const GeminiEmergencyAssistant: React.FC<GeminiEmergencyAssistantProps> =
 
       {/* MODE 2: NATURAL INTAKE PARSER */}
       {activeMode === 'extract' && (
-        <div className="space-y-3">
-          <div className="text-xs text-slate-300">
-            Paste or type a messy description of the emergency incident. Gemini will extract clinical
-            symptoms, vital numbers, and urgency automatically:
+        <div className="relative z-10 space-y-3.5">
+          <div className="text-xs text-slate-300 font-medium">
+            Paste or describe the emergency scene in plain English. Gemini will automatically extract clinical
+            symptoms, vital signs, and priority level:
           </div>
 
           <textarea
             rows={3}
             value={narrative}
             onChange={(e) => setNarrative(e.target.value)}
-            placeholder="e.g. My 68-year-old neighbor collapsed in the yard. He is complaining of crushing chest tightness radiating up to his neck, his skin is pale and sweaty, and his pulse is around 120 bpm."
-            className="w-full bg-slate-800/90 border border-slate-700 rounded-xl p-3 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-rose-500"
+            placeholder="e.g. 68-year-old neighbor collapsed in the yard. Complaining of crushing chest tightness radiating to neck, pale and sweaty, pulse feels around 120 bpm."
+            className="w-full bg-slate-900/90 border border-slate-700/80 rounded-2xl p-3.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-rose-500/60 shadow-inner"
           />
 
           <div className="flex items-center justify-between">
             <span className="text-[11px] text-slate-400">
-              Powered by Gemini 3.8 Flash structured schema extraction
+              Powered by Google Gemini 2.5 Flash Structured JSON Extraction
             </span>
             <button
               type="button"
               onClick={handleNaturalExtract}
               disabled={extractLoading || !narrative.trim()}
-              className="px-4 py-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+              className="px-5 py-2.5 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 disabled:opacity-50 text-white rounded-2xl text-xs font-black tracking-wide flex items-center gap-2 transition-all cursor-pointer shadow-md shadow-rose-600/30"
             >
               {extractLoading ? (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -326,14 +346,14 @@ export const GeminiEmergencyAssistant: React.FC<GeminiEmergencyAssistantProps> =
 
           {/* Extracted JSON Results */}
           {extractedResult && (
-            <div className="p-4 bg-slate-800/90 rounded-2xl border border-indigo-500/30 space-y-3 animate-in fade-in text-xs">
+            <div className="p-5 bg-slate-900/90 rounded-2xl border border-indigo-500/40 space-y-3.5 animate-in fade-in text-xs shadow-xl">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-white flex items-center gap-1.5">
+                <span className="font-bold text-white flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                   Gemini Clinical Extraction Completed
                 </span>
                 <span
-                  className={`px-2.5 py-0.5 rounded-full font-black text-[10px] ${
+                  className={`px-3 py-1 rounded-full font-black text-[10px] tracking-wider uppercase ${
                     extractedResult.urgency === 'CRITICAL'
                       ? 'bg-rose-600 text-white'
                       : extractedResult.urgency === 'MODERATE'
@@ -345,19 +365,20 @@ export const GeminiEmergencyAssistant: React.FC<GeminiEmergencyAssistantProps> =
                 </span>
               </div>
 
-              <div className="space-y-1.5">
+              <div className="space-y-2 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800">
                 <div className="text-slate-300">
-                  <strong>Identified Symptoms:</strong>{' '}
-                  {extractedResult.extractedSymptoms?.join(', ') || 'None parsed'}
+                  <strong className="text-white">Identified Symptoms:</strong>{' '}
+                  <span className="text-slate-200">{extractedResult.extractedSymptoms?.join(', ') || 'None parsed'}</span>
                 </div>
                 {extractedResult.detectedRedFlags && extractedResult.detectedRedFlags.length > 0 && (
-                  <div className="text-rose-300">
-                    <strong>Flagged Red Flags:</strong> {extractedResult.detectedRedFlags.join(', ')}
+                  <div className="text-rose-300 font-semibold flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                    <span>Red Flags: {extractedResult.detectedRedFlags.join(', ')}</span>
                   </div>
                 )}
                 {extractedResult.extractedVitals && (
-                  <div className="text-slate-300 font-mono text-[11px]">
-                    Vitals Detected:{' '}
+                  <div className="text-slate-300 font-mono text-[11px] pt-1 border-t border-slate-800">
+                    <strong className="text-white font-sans">Extracted Vitals:</strong>{' '}
                     {Object.entries(extractedResult.extractedVitals)
                       .filter(([_, v]) => v != null)
                       .map(([k, v]) => `${k}: ${v}`)
@@ -370,19 +391,19 @@ export const GeminiEmergencyAssistant: React.FC<GeminiEmergencyAssistantProps> =
                 <button
                   type="button"
                   onClick={handleApplyToForm}
-                  className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  className="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black rounded-xl text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md shadow-emerald-900/30"
                 >
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>Apply Extracted Symptoms & Vitals to Triage Form</span>
+                  <span>Apply Extracted Data to Triage Assessment</span>
                 </button>
               )}
 
-              <div className="flex items-center justify-between text-[10px] text-slate-400 pt-2 border-t border-slate-700/50">
+              <div className="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-800">
                 <span className="flex items-center gap-1.5">
-                  <Bot className="w-3 h-3 text-rose-400" />
+                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
                   <span>{extractedResult.modelUsed ? `Parsed by ${extractedResult.modelUsed}` : 'Parsed by Google Gemini Flash'}</span>
                 </span>
-                <span className="text-emerald-400 font-semibold">Triage Ready</span>
+                <span className="text-emerald-400 font-bold">Ready for Paramedic Handoff</span>
               </div>
             </div>
           )}

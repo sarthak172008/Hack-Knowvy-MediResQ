@@ -178,26 +178,30 @@ export const TriageAssessmentView: React.FC<TriageAssessmentViewProps> = ({
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Safety Notice Banner */}
-      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3 shadow-xs">
-        <Info className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-        <div className="text-xs text-amber-900 leading-relaxed">
-          <span className="font-bold">Important Medical Disclaimer:</span> MediResQ provides standardized
-          triage screening and first-aid guidance based on clinical protocols. It is{' '}
-          <strong className="underline">NOT a replacement for professional medical diagnosis or a physician</strong>.
-          If someone is unresponsive, choking, or having severe chest pain, bypass this form and call{' '}
-          <strong className="text-rose-700 font-extrabold">108 / 112</strong> immediately.
+      <div className="bg-amber-50/90 dark:bg-amber-950/40 border border-amber-300/80 dark:border-amber-700/60 rounded-2xl p-4 sm:p-4.5 flex items-start gap-3.5 shadow-xs backdrop-blur-xs">
+        <div className="p-2 bg-amber-500/20 text-amber-700 dark:text-amber-300 rounded-xl shrink-0 mt-0.5 border border-amber-500/30">
+          <Info className="w-4 h-4" />
+        </div>
+        <div className="text-xs text-amber-950 dark:text-amber-200 leading-relaxed font-medium">
+          <strong className="font-bold text-amber-900 dark:text-amber-100">Standardized Clinical Triage Screening:</strong> MediResQ
+          applies emergency decision-tree protocols for rapid prioritization. It is{' '}
+          <span className="font-bold underline text-amber-950 dark:text-amber-100">NOT a substitute for emergency dispatch or a licensed physician</span>.
+          If the individual is unresponsive, cyanotic, or suffering severe chest constriction, immediately bypass manual entry and dial{' '}
+          <strong className="text-rose-600 dark:text-rose-400 font-black">108 / 112</strong>.
         </div>
       </div>
 
       {/* Critical Red-Flag Fast-Pill Shortcut */}
-      <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 sm:p-5">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2 text-rose-800 font-bold text-sm">
-            <Zap className="w-4 h-4 text-rose-600 fill-rose-600 animate-pulse" />
-            <span>High-Acuity Red Flags (Tap for Instant Priority Triage)</span>
+      <div className="bg-gradient-to-r from-rose-50 to-red-50/60 dark:from-rose-950/30 dark:to-slate-900 border border-rose-200/90 dark:border-rose-800/60 rounded-3xl p-4 sm:p-5 shadow-xs">
+        <div className="flex items-center justify-between mb-3.5">
+          <div className="flex items-center gap-2.5 text-rose-900 dark:text-rose-200 font-extrabold text-sm">
+            <div className="p-1.5 bg-rose-600 text-white rounded-lg shadow-2xs">
+              <Zap className="w-3.5 h-3.5 fill-current animate-pulse" />
+            </div>
+            <span>High-Acuity Red Flags (Tap for Instant Priority Scoring)</span>
           </div>
-          <span className="text-[11px] font-semibold text-rose-600 bg-white px-2 py-0.5 rounded-full border border-rose-200">
-            Rapid Triage
+          <span className="text-[10px] font-black uppercase tracking-wider text-rose-700 dark:text-rose-300 bg-white dark:bg-slate-800 px-2.5 py-1 rounded-full border border-rose-200 dark:border-rose-700 shadow-2xs">
+            Direct Acuity
           </span>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -208,15 +212,19 @@ export const TriageAssessmentView: React.FC<TriageAssessmentViewProps> = ({
                 key={rf.id}
                 type="button"
                 onClick={() => toggleSymptom(rf.label)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer select-none ${
                   isSelected
-                    ? 'bg-rose-600 text-white shadow-sm ring-2 ring-rose-400'
-                    : 'bg-white text-rose-700 border border-rose-200 hover:bg-rose-100/70'
+                    ? 'bg-rose-600 text-white shadow-md shadow-rose-600/30 ring-2 ring-rose-400 scale-[1.02]'
+                    : 'bg-white dark:bg-slate-800 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-700/70 hover:bg-rose-100/70 dark:hover:bg-slate-700/80 shadow-2xs hover:scale-[1.01]'
                 }`}
               >
-                <AlertTriangle className="w-3.5 h-3.5" />
+                <AlertTriangle className="w-3.5 h-3.5 text-rose-500 dark:text-rose-400 shrink-0" />
                 <span>{rf.label}</span>
-                {isSelected && <Check className="w-3 h-3 ml-1 stroke-[3]" />}
+                {isSelected ? (
+                  <Check className="w-3.5 h-3.5 stroke-[3] text-white" />
+                ) : (
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+                )}
               </button>
             );
           })}
@@ -238,34 +246,36 @@ export const TriageAssessmentView: React.FC<TriageAssessmentViewProps> = ({
       />
 
       {/* Assessment Form Card */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-md shadow-slate-200/50 dark:shadow-none p-5 sm:p-7 transition-colors">
         <form onSubmit={handleSubmitTriage} className="space-y-6">
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4 gap-2">
             <div>
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                <Activity className="w-5 h-5 text-rose-600" />
-                Emergency Symptom Assessment
+              <h2 className="text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2.5">
+                <div className="p-1.5 bg-rose-500/10 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 rounded-xl">
+                  <Activity className="w-5 h-5 stroke-[2.5]" />
+                </div>
+                Clinical Symptom Assessment
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Select reported symptoms or write a quick description for instant clinical triage.
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                Select reported patient symptoms or filter by physiological system for instant triage.
               </p>
             </div>
             {selectedSymptoms.length > 0 && (
               <button
                 type="button"
                 onClick={() => setSelectedSymptoms([])}
-                className="text-xs text-slate-400 hover:text-slate-600 underline"
+                className="text-xs font-bold text-rose-600 dark:text-rose-400 hover:underline cursor-pointer self-start sm:self-auto"
               >
-                Clear all ({selectedSymptoms.length})
+                Reset selections ({selectedSymptoms.length})
               </button>
             )}
           </div>
 
           {/* Category Filter */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-2">
-              Filter by Symptom Category:
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
+              Filter by Organ System:
             </label>
             <div className="flex flex-wrap gap-1.5">
               {categories.map((cat) => (
@@ -273,10 +283,10 @@ export const TriageAssessmentView: React.FC<TriageAssessmentViewProps> = ({
                   key={cat}
                   type="button"
                   onClick={() => setActiveCategory(cat)}
-                  className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     activeCategory === cat
-                      ? 'bg-slate-900 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      ? 'bg-slate-900 dark:bg-rose-600 text-white shadow-xs'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                   }`}
                 >
                   {cat}
@@ -286,7 +296,7 @@ export const TriageAssessmentView: React.FC<TriageAssessmentViewProps> = ({
           </div>
 
           {/* Symptom Selection Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 max-h-64 overflow-y-auto p-1 border border-slate-100 rounded-xl bg-slate-50/50">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 max-h-72 overflow-y-auto p-2 border border-slate-200/80 dark:border-slate-800 rounded-2xl bg-slate-50/60 dark:bg-slate-950/40">
             {filteredSymptoms.map((symptom) => {
               const isSelected = selectedSymptoms.includes(symptom.label);
               return (
@@ -294,21 +304,21 @@ export const TriageAssessmentView: React.FC<TriageAssessmentViewProps> = ({
                   key={symptom.id}
                   type="button"
                   onClick={() => toggleSymptom(symptom.label)}
-                  className={`p-2.5 rounded-xl text-left text-xs font-medium flex items-center justify-between border transition-all ${
+                  className={`p-3 rounded-xl text-left text-xs font-semibold flex items-center justify-between border transition-all cursor-pointer select-none ${
                     isSelected
-                      ? 'bg-rose-50 border-rose-400 text-rose-950 font-semibold shadow-xs'
-                      : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300'
+                      ? 'bg-rose-50 dark:bg-rose-950/60 border-rose-400 dark:border-rose-600 text-rose-950 dark:text-rose-100 shadow-xs ring-1 ring-rose-400'
+                      : 'bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/80'
                   }`}
                 >
                   <div className="flex items-center gap-2 truncate">
                     {symptom.redFlag && (
-                      <span className="w-2 h-2 rounded-full bg-rose-600 shrink-0" title="Clinical Red Flag" />
+                      <span className="w-2 h-2 rounded-full bg-rose-600 shrink-0 animate-ping" title="Clinical Red Flag" />
                     )}
                     <span className="truncate">{symptom.label}</span>
                   </div>
                   <div
-                    className={`w-4 h-4 rounded-md border flex items-center justify-center shrink-0 ml-1.5 ${
-                      isSelected ? 'bg-rose-600 border-rose-600 text-white' : 'border-slate-300'
+                    className={`w-4 h-4 rounded-md border flex items-center justify-center shrink-0 ml-2 ${
+                      isSelected ? 'bg-rose-600 border-rose-600 text-white' : 'border-slate-300 dark:border-slate-600'
                     }`}
                   >
                     {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
@@ -320,23 +330,23 @@ export const TriageAssessmentView: React.FC<TriageAssessmentViewProps> = ({
 
           {/* Custom Narrative Input */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-              Describe Any Additional Symptoms or Situation (Optional):
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+              Additional Circumstances & Incident Timeline (Optional):
             </label>
             <textarea
               id="triage-custom-notes"
               value={customNotes}
               onChange={(e) => setCustomNotes(e.target.value)}
               rows={2}
-              placeholder="e.g., Started 20 minutes ago while sitting, dizzy, feels like an elephant on chest, allergic to penicillin..."
-              className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+              placeholder="e.g. Sudden onset 15 mins ago, radiating left arm pain, clammy skin, history of angina..."
+              className="w-full text-xs p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500 shadow-inner"
             />
           </div>
 
           {/* Basic Patient Info */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 p-4 bg-slate-50 dark:bg-slate-950/60 rounded-2xl border border-slate-200/90 dark:border-slate-800">
             <div>
-              <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+              <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
                 Patient Age:
               </label>
               <input
@@ -346,107 +356,125 @@ export const TriageAssessmentView: React.FC<TriageAssessmentViewProps> = ({
                 value={age}
                 onChange={(e) => setAge(e.target.value)}
                 placeholder="e.g. 32"
-                className="w-full text-xs p-2 rounded-lg bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+                className="w-full text-xs p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500/30"
               />
             </div>
             <div>
-              <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+              <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
                 Biological Sex:
               </label>
               <select
                 value={gender}
                 onChange={(e) => setGender(e.target.value)}
-                className="w-full text-xs p-2 rounded-lg bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+                className="w-full text-xs p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500/30"
               >
                 <option value="female">Female</option>
                 <option value="male">Male</option>
                 <option value="other">Other / Not Disclosed</option>
               </select>
             </div>
-            <div className="flex items-center mt-4 sm:mt-6">
-              <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-700">
+            <div className="flex items-center mt-3 sm:mt-6">
+              <label className="flex items-center gap-2.5 cursor-pointer text-xs font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-800 w-full select-none">
                 <input
                   type="checkbox"
                   checked={isPregnant}
                   onChange={(e) => setIsPregnant(e.target.checked)}
-                  className="rounded text-rose-600 focus:ring-rose-500"
+                  className="rounded text-rose-600 focus:ring-rose-500 w-4 h-4"
                 />
-                <span>Pregnant Patient</span>
+                <span>Pregnant Patient (High-Risk)</span>
               </label>
             </div>
           </div>
 
           {/* Optional Vitals Accordion */}
-          <div>
+          <div className="space-y-2">
             <button
               type="button"
               onClick={() => setShowVitals(!showVitals)}
-              className="flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-slate-900"
+              className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer select-none transition-colors"
             >
-              <HeartPulse className="w-4 h-4 text-rose-500" />
-              <span>{showVitals ? 'Hide Vital Signs (Optional)' : 'Add Known Vital Signs (BP, Heart Rate, SpO2) +'}</span>
+              <div className="p-1 bg-rose-500/10 text-rose-600 dark:text-rose-400 rounded-md">
+                <HeartPulse className="w-4 h-4" />
+              </div>
+              <span>{showVitals ? 'Hide Vital Signs (Optional)' : 'Add Known Vital Signs (Pulse, BP, SpO2, Temp) +'}</span>
               {showVitals ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
             </button>
 
             {showVitals && (
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3 p-3 bg-slate-50 rounded-xl border border-slate-200 animate-in fade-in">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-slate-50 dark:bg-slate-950/60 rounded-2xl border border-slate-200 dark:border-slate-800 animate-in fade-in">
                 <div>
-                  <label className="block text-[10px] font-semibold text-slate-600 mb-1">
-                    Heart Rate (BPM):
+                  <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1">
+                    Pulse (Heart Rate):
                   </label>
-                  <input
-                    type="number"
-                    value={heartRate}
-                    onChange={(e) => setHeartRate(e.target.value)}
-                    placeholder="e.g. 110"
-                    className="w-full text-xs p-2 rounded-lg bg-white border border-slate-200"
-                  />
+                  <div className="relative">
+                    <input
+                      type="number"
+                      value={heartRate}
+                      onChange={(e) => setHeartRate(e.target.value)}
+                      placeholder="110"
+                      className="w-full text-xs p-2.5 pr-10 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white"
+                    />
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400 font-mono">
+                      BPM
+                    </span>
+                  </div>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-semibold text-slate-600 mb-1">
+                  <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1">
                     Blood Pressure:
                   </label>
-                  <div className="flex gap-1">
+                  <div className="flex gap-1.5">
                     <input
                       type="number"
                       value={systolicBP}
                       onChange={(e) => setSystolicBP(e.target.value)}
-                      placeholder="Sys 130"
-                      className="w-1/2 text-xs p-2 rounded-lg bg-white border border-slate-200"
+                      placeholder="130"
+                      className="w-1/2 text-xs p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white"
                     />
+                    <span className="self-center text-slate-400 font-bold">/</span>
                     <input
                       type="number"
                       value={diastolicBP}
                       onChange={(e) => setDiastolicBP(e.target.value)}
-                      placeholder="Dia 85"
-                      className="w-1/2 text-xs p-2 rounded-lg bg-white border border-slate-200"
+                      placeholder="85"
+                      className="w-1/2 text-xs p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-semibold text-slate-600 mb-1">
-                    Oxygen Saturation (%):
+                  <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1">
+                    Oxygen Saturation:
                   </label>
-                  <input
-                    type="number"
-                    value={oxygenSat}
-                    onChange={(e) => setOxygenSat(e.target.value)}
-                    placeholder="e.g. 96"
-                    className="w-full text-xs p-2 rounded-lg bg-white border border-slate-200"
-                  />
+                  <div className="relative">
+                    <input
+                      type="number"
+                      value={oxygenSat}
+                      onChange={(e) => setOxygenSat(e.target.value)}
+                      placeholder="96"
+                      className="w-full text-xs p-2.5 pr-8 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white"
+                    />
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400 font-mono">
+                      %
+                    </span>
+                  </div>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-semibold text-slate-600 mb-1">
-                    Temperature (°F):
+                  <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1">
+                    Temperature:
                   </label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={temperature}
-                    onChange={(e) => setTemperature(e.target.value)}
-                    placeholder="e.g. 98.6"
-                    className="w-full text-xs p-2 rounded-lg bg-white border border-slate-200"
-                  />
+                  <div className="relative">
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={temperature}
+                      onChange={(e) => setTemperature(e.target.value)}
+                      placeholder="98.6"
+                      className="w-full text-xs p-2.5 pr-8 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white"
+                    />
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400 font-mono">
+                      °F
+                    </span>
+                  </div>
                 </div>
               </div>
             )}
@@ -458,7 +486,7 @@ export const TriageAssessmentView: React.FC<TriageAssessmentViewProps> = ({
               id="btn-evaluate-triage"
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 px-6 rounded-xl font-bold text-sm bg-rose-600 hover:bg-rose-700 active:scale-[0.99] text-white shadow-md shadow-rose-600/20 flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50"
+              className="w-full py-4 px-6 rounded-2xl font-black text-sm bg-gradient-to-r from-rose-600 via-red-600 to-rose-600 hover:from-rose-500 hover:to-red-500 active:scale-[0.99] text-white shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2.5 transition-all cursor-pointer disabled:opacity-50 tracking-wide"
             >
               {loading ? (
                 <>
@@ -467,8 +495,8 @@ export const TriageAssessmentView: React.FC<TriageAssessmentViewProps> = ({
                 </>
               ) : (
                 <>
-                  <Activity className="w-5 h-5" />
-                  <span>Run Emergency Triage Assessment</span>
+                  <Activity className="w-5 h-5 stroke-[2.5]" />
+                  <span>RUN CLINICAL EMERGENCY TRIAGE ASSESSMENT</span>
                 </>
               )}
             </button>
@@ -480,42 +508,42 @@ export const TriageAssessmentView: React.FC<TriageAssessmentViewProps> = ({
       {currentTriage && (
         <div
           id="triage-results-card"
-          className={`rounded-2xl border-2 shadow-lg overflow-hidden animate-in fade-in slide-in-from-bottom-3 ${
+          className={`rounded-3xl border-2 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-3 ${
             currentTriage.urgency === 'CRITICAL'
-              ? 'bg-rose-50/40 border-rose-500'
+              ? 'bg-rose-50/40 dark:bg-rose-950/20 border-rose-500 shadow-rose-500/10'
               : currentTriage.urgency === 'MODERATE'
-              ? 'bg-amber-50/40 border-amber-500'
-              : 'bg-emerald-50/40 border-emerald-500'
+              ? 'bg-amber-50/40 dark:bg-amber-950/20 border-amber-500 shadow-amber-500/10'
+              : 'bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-500 shadow-emerald-500/10'
           }`}
         >
           {/* Urgency Badge Header */}
           <div
-            className={`p-5 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+            className={`p-5 sm:p-6 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
               currentTriage.urgency === 'CRITICAL'
-                ? 'bg-rose-600'
+                ? 'bg-gradient-to-r from-rose-600 via-red-600 to-rose-700'
                 : currentTriage.urgency === 'MODERATE'
-                ? 'bg-amber-600'
-                : 'bg-emerald-600'
+                ? 'bg-gradient-to-r from-amber-600 to-orange-600'
+                : 'bg-gradient-to-r from-emerald-600 to-teal-600'
             }`}
           >
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-white/20 rounded-xl">
+            <div className="flex items-center gap-3.5">
+              <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-xs border border-white/20">
                 {currentTriage.urgency === 'CRITICAL' ? (
-                  <AlertOctagon className="w-7 h-7 animate-pulse" />
+                  <AlertOctagon className="w-8 h-8 animate-pulse" />
                 ) : currentTriage.urgency === 'MODERATE' ? (
-                  <AlertTriangle className="w-7 h-7" />
+                  <AlertTriangle className="w-8 h-8" />
                 ) : (
-                  <ShieldCheck className="w-7 h-7" />
+                  <ShieldCheck className="w-8 h-8" />
                 )}
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold uppercase tracking-wider bg-black/20 px-2 py-0.5 rounded-md">
+                  <span className="text-[11px] font-black uppercase tracking-wider bg-black/25 px-2.5 py-0.5 rounded-full border border-white/10">
                     TRIAGE LEVEL: {currentTriage.urgency}
                   </span>
-                  <span className="text-xs opacity-90">Acuity Score: {currentTriage.score}/100</span>
+                  <span className="text-xs font-mono font-bold opacity-90">Acuity Score: {currentTriage.score}/100</span>
                 </div>
-                <h3 className="font-black text-xl sm:text-2xl mt-0.5 tracking-tight">
+                <h3 className="font-black text-xl sm:text-2xl mt-1 tracking-tight">
                   {currentTriage.recommendedAction}
                 </h3>
               </div>
@@ -526,34 +554,34 @@ export const TriageAssessmentView: React.FC<TriageAssessmentViewProps> = ({
               <button
                 id="btn-activate-emergency-mode"
                 onClick={() => onActivateEmergency?.(currentTriage)}
-                className="py-2.5 px-5 bg-white text-rose-700 hover:bg-rose-50 font-extrabold text-xs sm:text-sm rounded-xl shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer animate-pulse"
+                className="py-3 px-6 bg-white text-rose-700 hover:bg-rose-50 font-black text-xs sm:text-sm rounded-2xl shadow-lg shadow-black/10 flex items-center justify-center gap-2 transition-all cursor-pointer animate-pulse hover:scale-105 active:scale-95 shrink-0"
               >
-                <span>OPEN EMERGENCY DASHBOARD</span>
+                <span>LAUNCH RESCUE DASHBOARD</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             )}
           </div>
 
-          <div className="p-5 sm:p-6 space-y-5 bg-white">
+          <div className="p-6 sm:p-7 space-y-6 bg-white dark:bg-slate-900 transition-colors">
             {/* Action Timeframe */}
-            <div className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs">
-              <Clock className="w-4 h-4 text-slate-600 shrink-0" />
-              <div className="text-slate-800">
-                <span className="font-bold">Recommended Response Window: </span>
+            <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs">
+              <Clock className="w-4 h-4 text-slate-500 shrink-0" />
+              <div className="text-slate-800 dark:text-slate-200 font-medium">
+                <span className="font-bold text-slate-900 dark:text-white">Recommended Response Window: </span>
                 {currentTriage.timeframe}
               </div>
             </div>
 
             {/* Matched Red Flags */}
             {currentTriage.matchedRedFlags && currentTriage.matchedRedFlags.length > 0 && (
-              <div className="p-4 rounded-xl bg-rose-50 border border-rose-200">
-                <div className="text-xs font-bold text-rose-900 flex items-center gap-2 mb-2">
-                  <AlertCircle className="w-4 h-4 text-rose-600" />
+              <div className="p-4.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/80">
+                <div className="text-xs font-black uppercase tracking-wider text-rose-900 dark:text-rose-200 flex items-center gap-2 mb-2">
+                  <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400" />
                   <span>Triggered Red-Flag Clinical Indicators:</span>
                 </div>
-                <ul className="list-disc list-inside text-xs text-rose-800 space-y-1">
+                <ul className="list-disc list-inside text-xs text-rose-800 dark:text-rose-300 space-y-1 font-semibold">
                   {currentTriage.matchedRedFlags.map((flag, idx) => (
-                    <li key={idx} className="font-semibold">{flag}</li>
+                    <li key={idx}>{flag}</li>
                   ))}
                 </ul>
               </div>
@@ -562,23 +590,23 @@ export const TriageAssessmentView: React.FC<TriageAssessmentViewProps> = ({
             {/* First Aid Instructions */}
             {currentTriage.firstAidInstructions && currentTriage.firstAidInstructions.length > 0 && (
               <div>
-                <h4 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-                  <HeartPulse className="w-4 h-4 text-rose-600" />
+                <h4 className="text-sm font-black text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                  <HeartPulse className="w-4 h-4 text-rose-600 dark:text-rose-400" />
                   Immediate First-Aid Protocols While Arranging Care:
                 </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                   {currentTriage.firstAidInstructions.map((step, idx) => (
                     <div
                       key={idx}
-                      className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/50 space-y-1"
+                      className="p-4 rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/50 space-y-1.5 shadow-2xs"
                     >
-                      <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                        <span className="w-5 h-5 rounded-full bg-slate-900 text-white text-[11px] flex items-center justify-center">
+                      <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <span className="w-5 h-5 rounded-full bg-slate-900 dark:bg-rose-600 text-white text-[11px] font-black flex items-center justify-center shrink-0">
                           {idx + 1}
                         </span>
                         <span>{step.title}</span>
                       </div>
-                      <p className="text-xs text-slate-700 leading-relaxed pl-6.5">
+                      <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed pl-7">
                         {step.instruction}
                       </p>
                     </div>
@@ -589,31 +617,31 @@ export const TriageAssessmentView: React.FC<TriageAssessmentViewProps> = ({
 
             {/* AI Clinical Interpretation with Safety Guardrails */}
             {currentTriage.aiInterpretation && (
-              <div className="p-4.5 rounded-xl bg-indigo-50/60 border border-indigo-200 space-y-3">
+              <div className="p-5 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-800/60 space-y-3.5 shadow-xs">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-xs font-bold text-indigo-950">
-                    <Sparkles className="w-4 h-4 text-indigo-600" />
-                    <span>AI Decision-Support Interpretation (Gemini 3.8 Flash)</span>
+                  <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-indigo-950 dark:text-indigo-200">
+                    <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                    <span>AI Clinical Interpretation (Gemini Telemetry)</span>
                   </div>
-                  <span className="text-[10px] font-semibold bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-md">
-                    Medical Safety Guardrailed
+                  <span className="text-[10px] font-bold bg-indigo-100 dark:bg-indigo-900/60 text-indigo-800 dark:text-indigo-300 px-2.5 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-700">
+                    Guardrailed
                   </span>
                 </div>
 
-                <p className="text-xs text-indigo-900 font-medium">
+                <p className="text-xs text-indigo-950 dark:text-indigo-200 font-medium leading-relaxed">
                   {currentTriage.aiInterpretation.summary}
                 </p>
 
                 {currentTriage.aiInterpretation.safetyAdvisory && (
-                  <div className="text-xs p-2.5 bg-white/80 rounded-lg border border-indigo-100 text-indigo-900">
-                    <strong className="text-rose-700">Safety Directive: </strong>
+                  <div className="text-xs p-3 bg-white/90 dark:bg-slate-900/90 rounded-xl border border-indigo-100 dark:border-slate-800 text-indigo-950 dark:text-indigo-200">
+                    <strong className="text-rose-600 dark:text-rose-400 font-bold">Safety Directive: </strong>
                     {currentTriage.aiInterpretation.safetyAdvisory}
                   </div>
                 )}
 
                 {currentTriage.aiInterpretation.clinicalNotes && (
-                  <div className="text-xs text-slate-600 border-t border-indigo-100/80 pt-2">
-                    <strong className="text-slate-800">Paramedic / EMT Hand-off Notes: </strong>
+                  <div className="text-xs text-slate-600 dark:text-slate-400 border-t border-indigo-100/80 dark:border-indigo-900/60 pt-2.5">
+                    <strong className="text-slate-800 dark:text-slate-200 font-bold">Paramedic / EMT Hand-off Notes: </strong>
                     {currentTriage.aiInterpretation.clinicalNotes}
                   </div>
                 )}
@@ -621,7 +649,7 @@ export const TriageAssessmentView: React.FC<TriageAssessmentViewProps> = ({
             )}
 
             {/* Permanent Medical Disclaimer */}
-            <div className="text-[11px] text-slate-500 italic border-t border-slate-100 pt-3">
+            <div className="text-[11px] text-slate-400 italic border-t border-slate-100 dark:border-slate-800 pt-3">
               {currentTriage.disclaimer}
             </div>
           </div>
