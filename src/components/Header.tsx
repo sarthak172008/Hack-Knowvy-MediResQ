@@ -12,8 +12,10 @@ import {
   Menu,
   X,
   Compass,
+  Sparkles,
 } from 'lucide-react';
 import { UrgencyLevel } from '../types';
+import { ThemeSelector } from './ThemeSelector';
 
 interface HeaderProps {
   activeTab: string;
@@ -36,6 +38,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   const navItems = [
     { id: 'triage', label: 'Triage & Assess', icon: Activity },
+    { id: 'copilot', label: 'Gemini Copilot', icon: Sparkles },
     { id: 'dashboard', label: 'Emergency Dashboard', icon: ShieldAlert, badge: activeEmergency },
     { id: 'facilities', label: 'Nearby Facilities', icon: Hospital },
     { id: 'location', label: 'Live Location', icon: MapPin },
@@ -112,8 +115,11 @@ export const Header: React.FC<HeaderProps> = ({
             })}
           </nav>
 
-          {/* Action Buttons: 1-Tap SOS Call & Hackathon Blueprint */}
+          {/* Action Buttons: Theme Selector, Blueprint & 1-Tap SOS */}
           <div className="flex items-center gap-2">
+            {/* Theme Selector Popover */}
+            <ThemeSelector variant="dropdown" />
+
             <button
               id="btn-blueprint"
               onClick={onOpenBlueprint}
@@ -190,6 +196,13 @@ export const Header: React.FC<HeaderProps> = ({
               <Layers className="w-4 h-4" />
               <span>View System Blueprint & Database Schema</span>
             </button>
+          </div>
+
+          <div className="pt-3 pb-1 border-t border-slate-100">
+            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 px-1">
+              Select Display Theme
+            </div>
+            <ThemeSelector variant="grid" />
           </div>
         </div>
       )}

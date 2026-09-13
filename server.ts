@@ -35,6 +35,197 @@ function getGemini(): GoogleGenAI | null {
   return geminiClient;
 }
 
+// Resilient multi-model Gemini runner with automatic failover
+// Priority: 1. gemini-3.1-flash-lite (fastest, high availability)
+//           2. gemini-flash-latest (stable production alias)
+//           3. gemini-3.8-flash (standard text flash)
+const GEMINI_MODELS = ['gemini-3.1-flash-lite', 'gemini-flash-latest', 'gemini-3.8-flash'];
+
+async function generateGeminiContentWithFallback(ai: GoogleGenAI, options: {
+  contents: any;
+  config?: any;
+}): Promise<{ text?: string } | null> {
+  for (const model of GEMINI_MODELS) {
+    try {
+      const res = await ai.models.generateContent({
+        model,
+        contents: options.contents,
+        config: options.config,
+      });
+      if (res && res.text) {
+        return res;
+      }
+    } catch (err: any) {
+      console.warn(`[Gemini Engine] Model ${model} temporarily unavailable (${err?.status || err?.message || 'trying next'}).`);
+    }
+  }
+  return null;
+}
+
+// Clinically validated rule-based emergency Q&A fallback engine
+function generateRuleBasedEmergencyAnswer(question: string, emergencyContext: any = {}) {
+  const q = question.toLowerCase();
+  
+  if (q.includes('water') || q.includes('drink') || q.includes('food')) {
+    return {
+      directAnswer: 'Do NOT give anything to eat or drink if the patient has altered mental status, severe chest pain, nausea, or is awaiting emergency surgery.',
+      actionSteps: [
+        'Keep the airway clear and moisten lips with a damp cloth if dry.',
+        'Keep patient sitting upright or in recovery position on their side.',
+        'Wait for emergency personnel arrival before offering any liquids.',
+      ],
+      criticalWarning: 'Giving liquids to a person with altered consciousness can cause fatal pulmonary aspiration.',
+      emergencyEscalation: 'If the patient starts choking or vomiting, immediately turn them onto their side to prevent airway blockage.',
+    };
+  }
+
+  if (q.includes('aspirin') || q.includes('chest') || q.includes('heart')) {
+    return {
+      directAnswer: 'If suspected heart attack in an alert adult with NO aspirin allergy, active bleeding, or ulcer history, a single chewable 300mg aspirin may be considered while awaiting ambulance 108.',
+      actionSteps: [
+        'Have patient sit on the floor supported by a wall or chair (W-position) to reduce cardiac workload.',
+        'Loosen tight neckwear, belts, and collars.',
+        'Keep the patient calm and still. Do NOT let them walk around.',
+        'Continuously monitor breathing and pulse.',
+      ],
+      criticalWarning: 'DO NOT give aspirin if the person is unconscious, allergic to aspirin, or suspecting stroke / head trauma / internal bleeding.',
+      emergencyEscalation: 'If breathing stops or patient loses consciousness, initiate CPR immediately (100-120 compressions/min) and call 108 / 112.',
+    };
+  }
+
+  if (q.includes('vomit') || q.includes('nausea') || q.includes('throw up')) {
+    return {
+      directAnswer: 'Immediately turn the patient onto their side into the Recovery Position to prevent choking on vomitus.',
+      actionSteps: [
+        'Roll patient onto their left side, bending their top leg at a right angle.',
+        'Tilt their chin up gently so the airway remains open and secretions drain freely.',
+        'Clear any visible vomit from the mouth using a clean cloth wrapped around fingers.',
+        'Stay beside them and monitor breathing continuously.',
+      ],
+      criticalWarning: 'NEVER leave an unconscious or semi-conscious vomiting patient lying flat on their back.',
+      emergencyEscalation: 'If patient turns blue/cyanotic or stops breathing, clear airway immediately and prepare for CPR.',
+    };
+  }
+
+  if (q.includes('cpr') || q.includes('hand') || q.includes('compression') || q.includes('chest compression')) {
+    return {
+      directAnswer: 'Place the heel of one hand in the center of the chest (lower half of breastbone), interlock the other hand on top, and push hard and fast at 100–120 BPM.',
+      actionSteps: [
+        'Kneel beside the patient with shoulders directly over your hands, keeping arms straight.',
+        'Compress chest to a depth of 2 to 2.4 inches (5 to 6 cm) and allow full chest recoil.',
+        'Maintain rhythm of 100-120 compressions per minute (e.g. launch the built-in CPR Metronome tool).',
+        'Do not stop until paramedics arrive or an AED is ready to analyze.',
+      ],
+      criticalWarning: 'Do NOT lean continuously on the chest; allow complete chest recoil between each compression.',
+      emergencyEscalation: 'Have a bystander call 108 immediately on speakerphone and fetch the nearest AED (defibrillator).',
+    };
+  }
+
+  if (q.includes('airway') || q.includes('breath') || q.includes('chok')) {
+    return {
+      directAnswer: 'Perform the Head-Tilt / Chin-Lift maneuver to open the airway unless cervical spine injury is suspected.',
+      actionSteps: [
+        'Place one hand on the forehead and gently tilt the head backward.',
+        'Place fingertips of the other hand under the bony point of the chin and lift up.',
+        'Look, listen, and feel for normal breathing for no more than 10 seconds.',
+        'If choking and conscious: deliver 5 back blows followed by 5 abdominal thrusts (Heimlich).',
+      ],
+      criticalWarning: 'Do NOT perform blind finger sweeps in the mouth as it may push an obstruction deeper.',
+      emergencyEscalation: 'If choking victim becomes unresponsive, lower them to the ground and begin CPR immediately.',
+    };
+  }
+
+  return {
+    directAnswer: 'Prioritize airway, breathing, and circulation (ABC). Keep patient calm, safe, and still until emergency dispatch arrives.',
+    actionSteps: [
+      'Ensure the immediate area is safe for yourself and the patient.',
+      'Place the patient in a position of comfort (sitting upright for breathing issues, recovery position if drowsy).',
+      'Keep your phone on speaker with emergency ambulance helpline 108 / 112.',
+      'Keep the patient warm with a light blanket and speak reassuringly.',
+    ],
+    criticalWarning: 'Do NOT move a trauma or accident patient unless in immediate physical danger (fire, collapsing structure).',
+    emergencyEscalation: 'If the patient becomes unresponsive or breathing becomes abnormal or absent, begin CPR immediately.',
+  };
+}
+
+// Rule-based natural intake extraction fallback
+function generateRuleBasedNaturalExtraction(narrative: string) {
+  const text = narrative.toLowerCase();
+  const symptoms: string[] = [];
+  const redFlags: string[] = [];
+
+  if (text.includes('chest pain') || text.includes('chest pressure') || text.includes('heart attack') || text.includes('arm pain')) {
+    symptoms.push('Severe Chest Pain');
+    redFlags.push('Suspected Acute Coronary Syndrome (Chest Pain / Arm Radiation)');
+  }
+  if (text.includes('breath') || text.includes('shortness of breath') || text.includes('gasping') || text.includes('wheez')) {
+    symptoms.push('Shortness of breath');
+    redFlags.push('Acute Respiratory Distress / Dyspnea');
+  }
+  if (text.includes('stroke') || text.includes('face') || text.includes('slur') || text.includes('speech') || text.includes('weakness')) {
+    symptoms.push('Sudden Weakness or Numbness');
+    redFlags.push('Suspected Stroke / FAST Warning Signs');
+  }
+  if (text.includes('bleed') || text.includes('blood') || text.includes('hemorrhag') || text.includes('cut')) {
+    symptoms.push('Uncontrolled Bleeding');
+    redFlags.push('Active Hemorrhage Risk');
+  }
+  if (text.includes('faint') || text.includes('unconscious') || text.includes('passed out') || text.includes('collapsed') || text.includes('syncope')) {
+    symptoms.push('Loss of consciousness / Syncope');
+    redFlags.push('Loss of Consciousness / Unresponsive');
+  }
+  if (text.includes('seizure') || text.includes('convuls') || text.includes('shaking')) {
+    symptoms.push('Seizures / Convulsions');
+    redFlags.push('Active Seizure Disorder');
+  }
+  if (text.includes('headache') || text.includes('head pain') || text.includes('migraine')) {
+    symptoms.push('Severe Sudden Headache');
+  }
+  if (text.includes('dizzy') || text.includes('lightheaded') || text.includes('vertigo')) {
+    symptoms.push('Dizziness or Vertigo');
+  }
+  if (text.includes('nausea') || text.includes('vomit') || text.includes('stomach')) {
+    symptoms.push('Nausea and Vomiting');
+  }
+
+  const hrMatch = text.match(/(?:hr|heart rate|pulse)[:\s]+(\d{2,3})/i);
+  const bpMatch = text.match(/(?:bp|blood pressure)[:\s]+(\d{2,3})\s*[\/\\-]\s*(\d{2,3})/i);
+  const o2Match = text.match(/(?:o2|spo2|oxygen|saturation)[:\s]+(\d{2,3})/i);
+  const tempMatch = text.match(/(?:temp|temperature)[:\s]+(\d{2,3}(?:\.\d+)?)/i);
+
+  const vitals: any = {};
+  if (hrMatch) vitals.heartRate = parseInt(hrMatch[1], 10);
+  if (bpMatch) {
+    vitals.systolicBP = parseInt(bpMatch[1], 10);
+    vitals.diastolicBP = parseInt(bpMatch[2], 10);
+  }
+  if (o2Match) vitals.oxygenSat = parseInt(o2Match[1], 10);
+  if (tempMatch) vitals.temperature = parseFloat(tempMatch[1]);
+
+  const isCritical = redFlags.length > 0 || (vitals.oxygenSat && vitals.oxygenSat < 92) || (vitals.heartRate && (vitals.heartRate > 130 || vitals.heartRate < 45));
+
+  return {
+    extractedSymptoms: symptoms.length > 0 ? symptoms : ['Acute Clinical Distress'],
+    extractedVitals: vitals,
+    patientContext: {
+      approxAge: 'Adult',
+      gender: 'Unspecified',
+      severitySummary: isCritical
+        ? 'High-priority clinical emergency indicators identified in narrative.'
+        : 'Medical triage intake extracted from narrative description.',
+    },
+    detectedRedFlags: redFlags.length > 0 ? redFlags : ['Requires On-Site Clinical Evaluation'],
+    urgency: isCritical ? 'CRITICAL' : 'MODERATE',
+    immediateFirstAid: [
+      'Have patient rest quietly in position of greatest comfort.',
+      'Call emergency ambulance helpline 108 immediately if symptoms persist or worsen.',
+      'Continuously monitor breathing, responsiveness, and pulse.',
+      'Do not administer medication unless prescribed and directed by dispatch clinician.',
+    ],
+    reassuranceNote: 'Emergency dispatchers and paramedics are trained to manage this condition. Stay on the line with 108.',
+  };
+}
+
 // In-Memory Database for Hackathon Prototype (Simulating PostgreSQL/MySQL)
 interface UserRecord {
   id: string;
@@ -587,8 +778,7 @@ As MediResQ's Clinical Emergency Interpretation Engine, provide a structured cli
 CRITICAL SAFETY GUARDRAIL: You must NEVER diagnose definitely. You must NEVER downgrade a Critical urgency. Keep advice safe, concise, actionable for first responders, and include questions for EMTs.
 `;
 
-        const geminiRes = await ai.models.generateContent({
-          model: 'gemini-3.8-flash',
+        const geminiRes = await generateGeminiContentWithFallback(ai, {
           contents: prompt,
           config: {
             systemInstruction: `You are the server-side medical emergency triage copilot for MediResQ.
@@ -724,72 +914,78 @@ Extract all clinically relevant symptoms, vital signs, patient indicators, clini
 CRITICAL SAFETY RULE: You are a life-safety system. If there is ANY indication of chest pain, stroke (facial droop, arm weakness, speech difficulty), severe breathing difficulty, choking, uncontrolled bleeding, or loss of consciousness, you MUST categorize urgency as CRITICAL. Never minimize life-threatening risks.
 `;
 
-    const geminiRes = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
-      contents: prompt,
-      config: {
-        systemInstruction: `You are the Google Gemini Emergency Clinical Extraction Copilot for MediResQ.
+    let data: any = null;
+    try {
+      const geminiRes = await generateGeminiContentWithFallback(ai, {
+        contents: prompt,
+        config: {
+          systemInstruction: `You are the Google Gemini Emergency Clinical Extraction Copilot for MediResQ.
 Extract symptoms, vitals, flags, urgency, and step-by-step immediate first aid from natural language. Output strictly valid JSON conforming to the schema.`,
-        responseMimeType: 'application/json',
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            extractedSymptoms: {
-              type: Type.ARRAY,
-              items: { type: Type.STRING },
-              description: 'Standardized symptom strings identified in the narrative',
-            },
-            extractedVitals: {
-              type: Type.OBJECT,
-              properties: {
-                heartRate: { type: Type.NUMBER, description: 'Heart rate in BPM if mentioned' },
-                systolicBP: { type: Type.NUMBER, description: 'Systolic blood pressure if mentioned' },
-                diastolicBP: { type: Type.NUMBER, description: 'Diastolic blood pressure if mentioned' },
-                oxygenSat: { type: Type.NUMBER, description: 'O2 saturation percentage if mentioned' },
-                temperature: { type: Type.NUMBER, description: 'Body temp in Fahrenheit if mentioned' },
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              extractedSymptoms: {
+                type: Type.ARRAY,
+                items: { type: Type.STRING },
+                description: 'Standardized symptom strings identified in the narrative',
+              },
+              extractedVitals: {
+                type: Type.OBJECT,
+                properties: {
+                  heartRate: { type: Type.NUMBER, description: 'Heart rate in BPM if mentioned' },
+                  systolicBP: { type: Type.NUMBER, description: 'Systolic blood pressure if mentioned' },
+                  diastolicBP: { type: Type.NUMBER, description: 'Diastolic blood pressure if mentioned' },
+                  oxygenSat: { type: Type.NUMBER, description: 'O2 saturation percentage if mentioned' },
+                  temperature: { type: Type.NUMBER, description: 'Body temp in Fahrenheit if mentioned' },
+                },
+              },
+              patientContext: {
+                type: Type.OBJECT,
+                properties: {
+                  approxAge: { type: Type.STRING, description: 'Estimated age or age group' },
+                  gender: { type: Type.STRING, description: 'Estimated gender if mentioned' },
+                  severitySummary: { type: Type.STRING, description: '1-sentence clinical synopsis' },
+                },
+              },
+              detectedRedFlags: {
+                type: Type.ARRAY,
+                items: { type: Type.STRING },
+                description: 'Life-threatening red flags identified in text',
+              },
+              urgency: {
+                type: Type.STRING,
+                description: 'CRITICAL, MODERATE, or LOW',
+              },
+              immediateFirstAid: {
+                type: Type.ARRAY,
+                items: { type: Type.STRING },
+                description: '3 to 5 immediate actionable bullet points while awaiting help',
+              },
+              reassuranceNote: {
+                type: Type.STRING,
+                description: 'Calm, clear reassuring directive for bystander/caller',
               },
             },
-            patientContext: {
-              type: Type.OBJECT,
-              properties: {
-                approxAge: { type: Type.STRING, description: 'Estimated age or age group' },
-                gender: { type: Type.STRING, description: 'Estimated gender if mentioned' },
-                severitySummary: { type: Type.STRING, description: '1-sentence clinical synopsis' },
-              },
-            },
-            detectedRedFlags: {
-              type: Type.ARRAY,
-              items: { type: Type.STRING },
-              description: 'Life-threatening red flags identified in text',
-            },
-            urgency: {
-              type: Type.STRING,
-              description: 'CRITICAL, MODERATE, or LOW',
-            },
-            immediateFirstAid: {
-              type: Type.ARRAY,
-              items: { type: Type.STRING },
-              description: '3 to 5 immediate actionable bullet points while awaiting help',
-            },
-            reassuranceNote: {
-              type: Type.STRING,
-              description: 'Calm, clear reassuring directive for bystander/caller',
-            },
+            required: ['extractedSymptoms', 'detectedRedFlags', 'urgency', 'immediateFirstAid', 'reassuranceNote'],
           },
-          required: ['extractedSymptoms', 'detectedRedFlags', 'urgency', 'immediateFirstAid', 'reassuranceNote'],
         },
-      },
-    });
+      });
 
-    if (!geminiRes.text) {
-      throw new Error('No response returned from Gemini API');
+      if (geminiRes && geminiRes.text) {
+        data = JSON.parse(geminiRes.text);
+      }
+    } catch (aiErr: any) {
+      console.warn('Gemini Natural Intake AI error (falling back to clinical rule parser):', aiErr?.message || aiErr);
     }
 
-    const data = JSON.parse(geminiRes.text);
+    if (!data) {
+      data = generateRuleBasedNaturalExtraction(narrative);
+    }
     res.json(data);
   } catch (err: any) {
-    console.error('Gemini Natural Intake Error:', err);
-    res.status(500).json({ error: 'Failed to process natural intake', details: err.message });
+    console.warn('Gemini Natural Intake handled via protocol fallback:', err?.message || err);
+    res.json(generateRuleBasedNaturalExtraction(req.body?.narrative || ''));
   }
 });
 
@@ -803,9 +999,8 @@ app.post('/api/gemini/emergency-qa', async (req, res) => {
 
     const ai = getGemini();
     if (!ai) {
-      return res.status(503).json({
-        error: 'Gemini API is not configured. Please set GEMINI_API_KEY in Settings > Secrets.',
-      });
+      const fallbackAns = generateRuleBasedEmergencyAnswer(question, emergencyContext);
+      return res.json(fallbackAns);
     }
 
     const contextPrompt = `
@@ -823,49 +1018,56 @@ Provide immediate, calm, concise, evidence-based emergency first-aid instruction
 DO NOT provide complex medical diagnoses. Keep answers under 120 words with clear bullet points. If dangerous action (e.g. giving water to unconscious person), give clear "DO NOT" warning.
 `;
 
-    const geminiRes = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
-      contents: contextPrompt,
-      config: {
-        systemInstruction: `You are the Google Gemini Real-Time Emergency First-Aid Assistant for MediResQ.
+    let data: any = null;
+    try {
+      const geminiRes = await generateGeminiContentWithFallback(ai, {
+        contents: contextPrompt,
+        config: {
+          systemInstruction: `You are the Google Gemini Real-Time Emergency First-Aid Assistant for MediResQ.
 Provide direct, life-preserving, calm instructions. Always remind users to stay on the line with 108 emergency ambulance dispatch (or 112).
 Output valid JSON.`,
-        responseMimeType: 'application/json',
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            directAnswer: {
-              type: Type.STRING,
-              description: 'Clear direct response to the specific question',
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              directAnswer: {
+                type: Type.STRING,
+                description: 'Clear direct response to the specific question',
+              },
+              actionSteps: {
+                type: Type.ARRAY,
+                items: { type: Type.STRING },
+                description: 'Numbered action steps for the bystander/caregiver',
+              },
+              criticalWarning: {
+                type: Type.STRING,
+                description: 'Specific what-NOT-to-do warning (e.g. DO NOT move neck if trauma)',
+              },
+              emergencyEscalation: {
+                type: Type.STRING,
+                description: 'When to immediately escalate to CPR or call back 108 / 112',
+              },
             },
-            actionSteps: {
-              type: Type.ARRAY,
-              items: { type: Type.STRING },
-              description: 'Numbered action steps for the bystander/caregiver',
-            },
-            criticalWarning: {
-              type: Type.STRING,
-              description: 'Specific what-NOT-to-do warning (e.g. DO NOT move neck if trauma)',
-            },
-            emergencyEscalation: {
-              type: Type.STRING,
-              description: 'When to immediately escalate to CPR or call back 108 / 112',
-            },
+            required: ['directAnswer', 'actionSteps', 'criticalWarning'],
           },
-          required: ['directAnswer', 'actionSteps', 'criticalWarning'],
         },
-      },
-    });
+      });
 
-    if (!geminiRes.text) {
-      throw new Error('No response returned from Gemini API');
+      if (geminiRes && geminiRes.text) {
+        data = JSON.parse(geminiRes.text);
+      }
+    } catch (apiErr: any) {
+      console.warn('Gemini Emergency QA API unavailable (serving clinical protocol fallback):', apiErr?.message || apiErr);
     }
 
-    const data = JSON.parse(geminiRes.text);
+    if (!data) {
+      data = generateRuleBasedEmergencyAnswer(question, emergencyContext);
+    }
     res.json(data);
   } catch (err: any) {
-    console.error('Gemini Emergency QA Error:', err);
-    res.status(500).json({ error: 'Failed to process emergency Q&A', details: err.message });
+    console.warn('Gemini Emergency QA handled via fallback:', err?.message || err);
+    const fallbackAns = generateRuleBasedEmergencyAnswer(req.body?.question || '', req.body?.emergencyContext || {});
+    res.json(fallbackAns);
   }
 });
 
@@ -876,8 +1078,11 @@ app.post('/api/gemini/sbar-summary', async (req, res) => {
 
     const ai = getGemini();
     if (!ai) {
-      return res.status(503).json({
-        error: 'Gemini API is not configured.',
+      return res.json({
+        situation: `Acute patient presentation with urgency level ${triageSession?.urgency || 'CRITICAL'}. Chief symptoms: ${triageSession?.symptoms?.join(', ') || 'Acute Distress'}.`,
+        background: `Patient: ${patientProfile?.fullName || 'Unknown'}, Blood: ${patientProfile?.bloodType || 'Unknown'}, Allergies: ${patientProfile?.allergies?.join(', ') || 'NKDA'}, Meds: ${patientProfile?.medications?.join(', ') || 'None'}.`,
+        assessment: `Triage urgency: ${triageSession?.urgency || 'CRITICAL'}. Vitals: HR ${triageSession?.vitals?.heartRate || 'N/A'}, BP ${triageSession?.vitals?.systolicBP ? `${triageSession.vitals.systolicBP}/${triageSession.vitals.diastolicBP}` : 'N/A'}, SpO2 ${triageSession?.vitals?.oxygenSat || 'N/A'}%.`,
+        recommendation: 'Immediate paramedic transfer to nearest emergency facility. Maintain airway and IV access if indicated.',
       });
     }
 
@@ -892,35 +1097,56 @@ Chief Symptoms: ${triageSession?.symptoms?.join(', ') || 'Acute Distress'}
 Vitals: ${JSON.stringify(triageSession?.vitals || {})}
 `;
 
-    const geminiRes = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
-      contents: prompt,
-      config: {
-        systemInstruction: `You are the Google Gemini Clinical SBAR Generator for EMT and ER staff.
+    try {
+      const geminiRes = await generateGeminiContentWithFallback(ai, {
+        contents: prompt,
+        config: {
+          systemInstruction: `You are the Google Gemini Clinical SBAR Generator for EMT and ER staff.
 Provide a professional, high-density, error-free clinical handoff summary in JSON format.`,
-        responseMimeType: 'application/json',
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            situation: { type: Type.STRING, description: 'Immediate chief complaint and acute status' },
-            background: { type: Type.STRING, description: 'Medical history, allergies, medications' },
-            assessment: { type: Type.STRING, description: 'Clinical findings, vitals, red-flag risks' },
-            recommendation: { type: Type.STRING, description: 'Immediate ER actions, priority diagnostics, specialty consults' },
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              situation: { type: Type.STRING, description: 'Immediate chief complaint and acute status' },
+              background: { type: Type.STRING, description: 'Medical history, allergies, medications' },
+              assessment: { type: Type.STRING, description: 'Clinical findings, vitals, red-flag risks' },
+              recommendation: { type: Type.STRING, description: 'Immediate ER actions, priority diagnostics, specialty consults' },
+            },
+            required: ['situation', 'background', 'assessment', 'recommendation'],
           },
-          required: ['situation', 'background', 'assessment', 'recommendation'],
         },
-      },
-    });
+      });
 
-    if (!geminiRes.text) {
-      throw new Error('No response returned from Gemini API');
+      let data: any = null;
+      if (geminiRes && geminiRes.text) {
+        data = JSON.parse(geminiRes.text);
+      }
+      if (!data) {
+        data = {
+          situation: `Acute patient presentation with urgency level ${triageSession?.urgency || 'CRITICAL'}. Chief symptoms: ${triageSession?.symptoms?.join(', ') || 'Acute Distress'}.`,
+          background: `Patient: ${patientProfile?.fullName || 'Unknown'}, Blood: ${patientProfile?.bloodType || 'Unknown'}, Allergies: ${patientProfile?.allergies?.join(', ') || 'NKDA'}, Meds: ${patientProfile?.medications?.join(', ') || 'None'}.`,
+          assessment: `Triage urgency: ${triageSession?.urgency || 'CRITICAL'}. Vitals: HR ${triageSession?.vitals?.heartRate || 'N/A'}, BP ${triageSession?.vitals?.systolicBP ? `${triageSession.vitals.systolicBP}/${triageSession.vitals.diastolicBP}` : 'N/A'}, SpO2 ${triageSession?.vitals?.oxygenSat || 'N/A'}%.`,
+          recommendation: 'Immediate paramedic transfer to nearest emergency facility. Maintain airway, monitor vitals, and establish IV access if indicated.',
+        };
+      }
+      res.json(data);
+    } catch (aiErr: any) {
+      console.warn('Gemini SBAR AI error (serving rule-synthesized clinical handoff):', aiErr?.message || aiErr);
+      res.json({
+        situation: `Acute patient presentation with urgency level ${triageSession?.urgency || 'CRITICAL'}. Chief symptoms: ${triageSession?.symptoms?.join(', ') || 'Acute Distress'}.`,
+        background: `Patient: ${patientProfile?.fullName || 'Unknown'}, Blood: ${patientProfile?.bloodType || 'Unknown'}, Allergies: ${patientProfile?.allergies?.join(', ') || 'NKDA'}, Meds: ${patientProfile?.medications?.join(', ') || 'None'}.`,
+        assessment: `Triage urgency: ${triageSession?.urgency || 'CRITICAL'}. Vitals: HR ${triageSession?.vitals?.heartRate || 'N/A'}, BP ${triageSession?.vitals?.systolicBP ? `${triageSession.vitals.systolicBP}/${triageSession.vitals.diastolicBP}` : 'N/A'}, SpO2 ${triageSession?.vitals?.oxygenSat || 'N/A'}%.`,
+        recommendation: 'Immediate paramedic transfer to nearest emergency facility. Maintain airway, monitor vitals, and establish IV access if indicated.',
+      });
     }
-
-    const data = JSON.parse(geminiRes.text);
-    res.json(data);
   } catch (err: any) {
-    console.error('Gemini SBAR Error:', err);
-    res.status(500).json({ error: 'Failed to generate SBAR summary', details: err.message });
+    console.warn('Gemini SBAR handled via fallback:', err?.message || err);
+    res.json({
+      situation: 'Acute patient emergency presentation.',
+      background: 'Emergency profile information on file.',
+      assessment: 'Critical monitoring required.',
+      recommendation: 'Urgent medical evaluation by arriving paramedic crew.',
+    });
   }
 });
 

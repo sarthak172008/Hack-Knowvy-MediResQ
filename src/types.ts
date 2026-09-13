@@ -1,5 +1,17 @@
 export type UrgencyLevel = 'CRITICAL' | 'MODERATE' | 'LOW';
 
+export type AppTheme = 'clinical' | 'midnight' | 'high-contrast' | 'calm-sage';
+
+export interface ThemeOption {
+  id: AppTheme;
+  name: string;
+  tagline: string;
+  badge: string;
+  bgHex: string;
+  surfaceHex: string;
+  accentHex: string;
+}
+
 export interface EmergencyContact {
   id: string;
   name: string;

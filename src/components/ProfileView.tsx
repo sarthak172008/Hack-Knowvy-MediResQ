@@ -14,9 +14,11 @@ import {
   EyeOff,
   LogOut,
   LogIn,
+  Palette,
 } from 'lucide-react';
 import { PatientProfile, EmergencyContact } from '../types';
 import { DEFAULT_DEMO_PROFILE } from '../data/mockData';
+import { ThemeSelector } from './ThemeSelector';
 
 interface ProfileViewProps {
   profile: PatientProfile | null;
@@ -480,6 +482,23 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Visual Environment & Display Theme Preferences */}
+        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Palette className="w-5 h-5 text-rose-600" />
+              <h3 className="text-sm font-bold text-slate-900">
+                Visual Environment & Display Theme
+              </h3>
+            </div>
+            <span className="text-[11px] text-slate-400 font-medium">4 Contextual Themes</span>
+          </div>
+          <p className="text-xs text-slate-500">
+            Choose a visual mode tailored to your reading conditions: high daytime clarity, low-glare night ambulance, vision assist with high-contrast borders, or anti-panic calm sage.
+          </p>
+          <ThemeSelector variant="grid" />
         </div>
 
         {/* Privacy & Lock Screen Controls */}

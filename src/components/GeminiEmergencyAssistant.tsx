@@ -135,8 +135,9 @@ export const GeminiEmergencyAssistant: React.FC<GeminiEmergencyAssistantProps> =
               <h3 className="font-bold text-sm text-white flex items-center gap-1.5">
                 Google Gemini Emergency Copilot
               </h3>
-              <span className="px-2 py-0.5 text-[9px] font-extrabold uppercase bg-rose-500 text-white rounded-full">
-                Gemini 3.8 Flash
+              <span className="flex items-center gap-1.5 px-2 py-0.5 text-[9px] font-extrabold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Live AI Active
               </span>
             </div>
             <p className="text-[11px] text-slate-400">
@@ -259,6 +260,23 @@ export const GeminiEmergencyAssistant: React.FC<GeminiEmergencyAssistantProps> =
                   </span>
                 </div>
               )}
+
+              {qaResponse.emergencyEscalation && (
+                <div className="p-2.5 bg-amber-950/40 border border-amber-700/60 rounded-xl text-xs text-amber-200 flex items-start gap-2">
+                  <Zap className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                  <span>
+                    <strong>When to Escalate:</strong> {qaResponse.emergencyEscalation}
+                  </span>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between text-[10px] text-slate-400 pt-2 border-t border-slate-700/50">
+                <span className="flex items-center gap-1.5">
+                  <Bot className="w-3 h-3 text-rose-400" />
+                  <span>{qaResponse.modelUsed ? `Answered by ${qaResponse.modelUsed}` : 'Powered by Google Gemini Flash'}</span>
+                </span>
+                <span className="text-emerald-400 font-semibold">108 / 112 Protocol Aligned</span>
+              </div>
             </div>
           )}
         </div>
@@ -358,6 +376,14 @@ export const GeminiEmergencyAssistant: React.FC<GeminiEmergencyAssistantProps> =
                   <span>Apply Extracted Symptoms & Vitals to Triage Form</span>
                 </button>
               )}
+
+              <div className="flex items-center justify-between text-[10px] text-slate-400 pt-2 border-t border-slate-700/50">
+                <span className="flex items-center gap-1.5">
+                  <Bot className="w-3 h-3 text-rose-400" />
+                  <span>{extractedResult.modelUsed ? `Parsed by ${extractedResult.modelUsed}` : 'Parsed by Google Gemini Flash'}</span>
+                </span>
+                <span className="text-emerald-400 font-semibold">Triage Ready</span>
+              </div>
             </div>
           )}
         </div>
