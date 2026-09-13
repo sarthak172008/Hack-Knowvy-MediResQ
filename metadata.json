@@ -1,0 +1,6 @@
+{
+  "name": "MediResQ – Smart Emergency Health Response System",
+  "description": "Rapid emergency symptom triage, 1-tap emergency dispatch, paramedic-ready medical summary, and real-time healthcare facility locator.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
